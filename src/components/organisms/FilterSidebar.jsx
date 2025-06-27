@@ -1,11 +1,11 @@
-import { useState, useEffect } from 'react'
-import { motion } from 'framer-motion'
-import Input from '@/components/atoms/Input'
-import Select from '@/components/atoms/Select'
-import Button from '@/components/atoms/Button'
-import ApperIcon from '@/components/ApperIcon'
+import React, { useEffect, useState } from "react";
+import { motion } from "framer-motion";
+import ApperIcon from "@/components/ApperIcon";
+import Select from "@/components/atoms/Select";
+import Button from "@/components/atoms/Button";
+import Input from "@/components/atoms/Input";
 
-const FilterSidebar = ({ isOpen, onClose, onFiltersChange, className = "" }) => {
+const FilterSidebar = ({ isOpen, onClose, onFiltersChange, onOpenAdvancedFilters, className = '' }) => {
   const [filters, setFilters] = useState({
     minPrice: '',
     maxPrice: '',

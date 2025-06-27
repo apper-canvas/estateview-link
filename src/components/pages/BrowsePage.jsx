@@ -4,6 +4,7 @@ import FilterSidebar from '@/components/organisms/FilterSidebar'
 import PropertyGrid from '@/components/organisms/PropertyGrid'
 import Button from '@/components/atoms/Button'
 import ApperIcon from '@/components/ApperIcon'
+import AdvancedFilterModal from '@/components/molecules/AdvancedFilterModal'
 import { getAllProperties } from '@/services/api/propertiesService'
 import { getSavedProperties } from '@/services/api/savedPropertiesService'
 
@@ -14,9 +15,10 @@ const BrowsePage = () => {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
   const [isFilterOpen, setIsFilterOpen] = useState(false)
-  const [viewMode, setViewMode] = useState('grid')
+const [viewMode, setViewMode] = useState('grid')
   const [sortBy, setSortBy] = useState('newest')
-
+  const [advancedFilters, setAdvancedFilters] = useState({})
+  const [isAdvancedFilterOpen, setIsAdvancedFilterOpen] = useState(false)
   useEffect(() => {
     loadProperties()
     loadSavedProperties()
@@ -45,10 +47,10 @@ const BrowsePage = () => {
     }
   }
 
-  const handleFiltersChange = (filters) => {
+const handleFiltersChange = (filters) => {
     let filtered = [...properties]
 
-    // Apply filters
+    // Apply basic filters
     if (filters.minPrice) {
       filtered = filtered.filter(p => p.price >= parseInt(filters.minPrice))
     }
@@ -71,6 +73,138 @@ const BrowsePage = () => {
         p.state.toLowerCase().includes(searchTerm) ||
         p.address.toLowerCase().includes(searchTerm) ||
         p.zipCode.includes(searchTerm)
+      )
+    }
+
+    // Apply advanced filters
+    const combined = { ...filters, ...advancedFilters }
+    
+    if (combined.minYearBuilt) {
+      filtered = filtered.filter(p => p.yearBuilt >= parseInt(combined.minYearBuilt))
+    }
+    if (combined.maxYearBuilt) {
+      filtered = filtered.filter(p => p.yearBuilt <= parseInt(combined.maxYearBuilt))
+    }
+    if (combined.minSqft) {
+      filtered = filtered.filter(p => p.sqft >= parseInt(combined.minSqft))
+    }
+    if (combined.maxSqft) {
+      filtered = filtered.filter(p => p.sqft <= parseInt(combined.maxSqft))
+    }
+    if (combined.minLotSize) {
+      filtered = filtered.filter(p => (p.lotSize || 0) >= parseFloat(combined.minLotSize))
+    }
+    if (combined.maxLotSize) {
+      filtered = filtered.filter(p => (p.lotSize || 0) <= parseFloat(combined.maxLotSize))
+    }
+    if (combined.amenities && combined.amenities.length > 0) {
+      filtered = filtered.filter(p => 
+        combined.amenities.every(amenity => 
+          p.features && p.features.some(feature => 
+            feature.toLowerCase().includes(amenity.toLowerCase())
+          )
+        )
+      )
+    }
+    if (combined.features && combined.features.length > 0) {
+      filtered = filtered.filter(p => 
+        combined.features.every(feature => 
+          p.features && p.features.some(pFeature => 
+            pFeature.toLowerCase().includes(feature.toLowerCase())
+          )
+        )
+      )
+    }
+
+    // Apply sorting
+    switch (sortBy) {
+      case 'price-low':
+        filtered.sort((a, b) => a.price - b.price)
+        break
+      case 'price-high':
+        filtered.sort((a, b) => b.price - a.price)
+        break
+      case 'newest':
+        filtered.sort((a, b) => new Date(b.listingDate) - new Date(a.listingDate))
+        break
+      case 'oldest':
+        filtered.sort((a, b) => new Date(a.listingDate) - new Date(b.listingDate))
+        break
+      default:
+        break
+    }
+
+    setFilteredProperties(filtered)
+  }
+
+  const handleAdvancedFiltersChange = (newAdvancedFilters) => {
+    setAdvancedFilters(newAdvancedFilters)
+    // Re-apply all filters with new advanced filters
+    let filtered = [...properties]
+
+    // Get current basic filters from FilterSidebar (we'll need to track these)
+    const basicFilters = {} // This would come from the FilterSidebar state
+    const combined = { ...basicFilters, ...newAdvancedFilters }
+    
+    // Apply all filters (basic + advanced)
+    if (combined.minPrice) {
+      filtered = filtered.filter(p => p.price >= parseInt(combined.minPrice))
+    }
+    if (combined.maxPrice) {
+      filtered = filtered.filter(p => p.price <= parseInt(combined.maxPrice))
+    }
+    if (combined.propertyType) {
+      filtered = filtered.filter(p => p.propertyType === combined.propertyType)
+    }
+    if (combined.minBeds) {
+      filtered = filtered.filter(p => p.bedrooms >= parseInt(combined.minBeds))
+    }
+    if (combined.minBaths) {
+      filtered = filtered.filter(p => p.bathrooms >= parseInt(combined.minBaths))
+    }
+    if (combined.location) {
+      const searchTerm = combined.location.toLowerCase()
+      filtered = filtered.filter(p => 
+        p.city.toLowerCase().includes(searchTerm) ||
+        p.state.toLowerCase().includes(searchTerm) ||
+        p.address.toLowerCase().includes(searchTerm) ||
+        p.zipCode.includes(searchTerm)
+      )
+    }
+    if (combined.minYearBuilt) {
+      filtered = filtered.filter(p => p.yearBuilt >= parseInt(combined.minYearBuilt))
+    }
+    if (combined.maxYearBuilt) {
+      filtered = filtered.filter(p => p.yearBuilt <= parseInt(combined.maxYearBuilt))
+    }
+    if (combined.minSqft) {
+      filtered = filtered.filter(p => p.sqft >= parseInt(combined.minSqft))
+    }
+    if (combined.maxSqft) {
+      filtered = filtered.filter(p => p.sqft <= parseInt(combined.maxSqft))
+    }
+    if (combined.minLotSize) {
+      filtered = filtered.filter(p => (p.lotSize || 0) >= parseFloat(combined.minLotSize))
+    }
+    if (combined.maxLotSize) {
+      filtered = filtered.filter(p => (p.lotSize || 0) <= parseFloat(combined.maxLotSize))
+    }
+    if (combined.amenities && combined.amenities.length > 0) {
+      filtered = filtered.filter(p => 
+        combined.amenities.every(amenity => 
+          p.features && p.features.some(feature => 
+            feature.toLowerCase().includes(amenity.toLowerCase())
+          )
+        )
+      )
+    }
+    if (combined.features && combined.features.length > 0) {
+      filtered = filtered.filter(p => 
+        combined.features.every(feature => 
+          p.features && p.features.some(pFeature => 
+            pFeature.toLowerCase().includes(feature.toLowerCase())
+          )
+        )
       )
     }
 
@@ -201,10 +335,19 @@ const BrowsePage = () => {
       </div>
 
       {/* Mobile Filter Sidebar */}
-      <FilterSidebar
+<FilterSidebar
         isOpen={isFilterOpen}
         onClose={() => setIsFilterOpen(false)}
         onFiltersChange={handleFiltersChange}
+        onOpenAdvancedFilters={() => setIsAdvancedFilterOpen(true)}
+      />
+
+      {/* Advanced Filter Modal */}
+      <AdvancedFilterModal
+        isOpen={isAdvancedFilterOpen}
+        onClose={() => setIsAdvancedFilterOpen(false)}
+        onApplyFilters={handleAdvancedFiltersChange}
+        initialFilters={advancedFilters}
       />
     </div>
   )
