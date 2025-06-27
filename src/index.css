@@ -1,0 +1,93 @@
+@import 'react-toastify/dist/ReactToastify.css';
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Toast customization */
+.Toastify__toast-container {
+  width: auto;
+  max-width: 400px !important;
+}
+
+.Toastify__toast {
+  border-radius: 8px;
+  padding: 12px 16px;
+  min-height: auto;
+  font-family: 'Inter', system-ui, sans-serif;
+  font-size: 14px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.Toastify__toast--success {
+  background: linear-gradient(135deg, #27AE60 0%, #2ECC71 100%);
+}
+
+.Toastify__toast--error {
+  background: linear-gradient(135deg, #E74C3C 0%, #C0392B 100%);
+}
+
+.Toastify__toast--info {
+  background: linear-gradient(135deg, #3498DB 0%, #2980B9 100%);
+}
+
+.Toastify__toast--warning {
+  background: linear-gradient(135deg, #F39C12 0%, #E67E22 100%);
+}
+
+.Toastify__progress-bar {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #c1c1c1;
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #a8a8a8;
+}
+
+/* Smooth scroll behavior */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Custom utility classes */
+@layer utilities {
+  .text-gradient {
+    background: linear-gradient(135deg, #2d4a3e 0%, #466653 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  
+  .text-accent-gradient {
+    background: linear-gradient(135deg, #e67e22 0%, #d76418 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  
+  .bg-gradient-primary {
+    background: linear-gradient(135deg, #2d4a3e 0%, #466653 100%);
+  }
+  
+  .bg-gradient-accent {
+    background: linear-gradient(135deg, #e67e22 0%, #d76418 100%);
+  }
+  
+  .glass {
+    background: rgba(255, 255, 255, 0.85);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+  }
+}
